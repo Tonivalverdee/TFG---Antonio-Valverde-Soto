@@ -118,7 +118,7 @@ figs = {
 # Layout
 app.layout = html.Div([
     html.H1("Gráficas del Instituto", style={"textAlign": "center"}),
-    html.Div([dcc.Graph(figure=fig) for fig in figs.values()])
+    html.Div([dcc.Graph(figure=fig) for fig in figs.values()], className="graph-container")
 ])
 
 # Ejecutar app
