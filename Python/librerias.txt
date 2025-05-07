@@ -1,0 +1,6 @@
+dash
+plotly[express]
+pandas
+sqlalchemy
+pymysql
+cryptography
