@@ -48,6 +48,13 @@ queries = {
         FROM cursos c
         LEFT JOIN asignaturas s ON s.id_curso = c.id
         GROUP BY c.nombre;
+    ''',
+    "Nota Media por Asignatura": '''
+        SELECT cursos.nombre, COUNT(DISTINCT matriculas.id_alumno) AS num_alumnos
+        FROM matriculas
+        JOIN asignaturas ON matriculas.id_asignatura = asignaturas.id
+        JOIN cursos ON asignaturas.id_curso = cursos.id
+        GROUP BY cursos.nombre;
     '''
 }
 
@@ -57,6 +64,17 @@ grafica_alumnos = px.bar(
     df_alumnos,
     x="Curso",
     y="Alumnos",
+    color="Curso",
+    color_discrete_sequence=[ "#FFADAD", "#FFD6A5", "#FDFFB6", "#CAFFBF"],
+    title="Alumnos por Curso"
+)
+
+# Gráfica de quesitos Alumnos por Curso
+df_alumnos_quesitos = obtener_datos(queries["alumnos_por_curso"])
+quesitos_alumnos = px.pie(
+    df_alumnos_quesitos,
+    names="Curso",
+    values="Alumnos",
     color="Curso",
     color_discrete_sequence=[ "#FFADAD", "#FFD6A5", "#FDFFB6", "#CAFFBF"],
     title="Alumnos por Curso"
@@ -73,12 +91,34 @@ grafica_profesores = px.bar(
     title="Asignaturas por Profesor"
 )
 
+# Gráfica de quesitos Asignaturas por Profesor
+df_profesores_quesitos = obtener_datos(queries["asignaturas_por_profesor"])
+quesitos_profesores = px.pie(
+    df_profesores_quesitos,
+    names="Profesor",
+    values="Asignaturas",
+    color="Profesor",
+    color_discrete_sequence=["#9BF6FF", "#A0C4FF", "#BDB2FF", "#FFC6FF", "#FFFFFC", "#FDCBCA", "#FEE1E8", "#F4D1AE", "#D3F8E2"],
+    title="Asignaturas por Profesor"
+)
+
 # Gráfica Nota Media por Curso
 df_nota_media = obtener_datos(queries["nota_media_por_curso"])
 grafica_nota_media = px.bar(
     df_nota_media,
     x="Curso",
     y="Media",
+    color="Curso",
+    color_discrete_sequence=["#E4C1F9", "#FAEDCB", "#C9F2C7", "#B5EAD7"],
+    title="Nota Media por Curso"
+)
+
+# Gráfica de quesitos Nota Media por Curso
+df_nota_media_quesitos = obtener_datos(queries["nota_media_por_curso"])
+quesitos_nota_media = px.pie(
+    df_nota_media_quesitos,
+    names="Curso",
+    values="Media",
     color="Curso",
     color_discrete_sequence=["#E4C1F9", "#FAEDCB", "#C9F2C7", "#B5EAD7"],
     title="Nota Media por Curso"
@@ -92,7 +132,18 @@ grafica_alumnos_asignaturas = px.bar(
     y="Alumnos",
     color="Asignatura",
     color_discrete_sequence=["#FFDAC1", "#E2F0CB", "#FFCBC1", "#C2FAFF", "#E0BBE4", "#FFDFD3", "#FFFACD", "#FFDEE9", "#E0F7FA", "#F0F4C3", "#C8E6C9", "#FFCCBC", "#D1C4E9", "#F8BBD0", "#DCEDC8"],
-    title="Alumnos y Asignaturas por Curso"
+    title="Número de Alumnos por Asignatura"
+)
+
+# Gráfica de quesitos Alumnos por Asignatura
+df_alumnos_asignaturas_quesitos = obtener_datos(queries["alumnos_por_asignatura"])
+quesitos_alumnos_asignaturas = px.pie(
+    df_alumnos_asignaturas_quesitos,
+    names="Asignatura",
+    values="Alumnos",
+    color="Asignatura",
+    color_discrete_sequence=["#FFDAC1", "#E2F0CB", "#FFCBC1", "#C2FAFF", "#E0BBE4", "#FFDFD3", "#FFFACD", "#FFDEE9", "#E0F7FA", "#F0F4C3", "#C8E6C9", "#FFCCBC", "#D1C4E9", "#F8BBD0", "#DCEDC8"],
+    title="Número de Alumnos por Asignatura"
 )
 
 # Grafica Asignaturas por Curso
@@ -106,13 +157,29 @@ grafica_asignaturas_por_curso = px.bar(
     title="Asignaturas por Curso"
 )
 
-# Otras gráficas sin cambios
+# Gráfica de quesitos Asignaturas por Curso
+df_asignaturas_por_curso_quesitos = obtener_datos(queries["asignaturas_por_curso"])
+quesitos_asignaturas_por_curso = px.pie(
+    df_asignaturas_por_curso_quesitos,
+    names="Curso",
+    values="Asignaturas",
+    color="Curso",
+    color_discrete_sequence=["#F0E5DE", "#FFD1DC", "#B5FFF9", "#FFF1C9"],
+    title="Asignaturas por Curso"
+)
+
+# Graficas
 figs = {
     "Alumnos por Curso": grafica_alumnos,
+    "Alumnos por Curso (Quesitos)": quesitos_alumnos,
     "Asignaturas por Profesor": grafica_profesores,
+    "Asignaturas por Profesor (Quesitos)": quesitos_profesores,
     "Nota Media por Curso": grafica_nota_media,
+    "Nota Media por Curso (Quesitos)": quesitos_nota_media,
     "Alumnos por Asignatura": grafica_alumnos_asignaturas,
-    "Alumnos y Asignaturas por Curso": grafica_asignaturas_por_curso
+    "Alumnos por Asignatura (Quesitos)": quesitos_alumnos_asignaturas,
+    "Alumnos y Asignaturas por Curso": grafica_asignaturas_por_curso,
+    "Alumnos y Asignaturas por Curso (Quesitos)": quesitos_asignaturas_por_curso
 }
 
 # Layout
