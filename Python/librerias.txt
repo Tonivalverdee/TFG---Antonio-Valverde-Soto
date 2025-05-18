@@ -1,6 +1,5 @@
 dash
-plotly[express]
+plotly
 pandas
 sqlalchemy
 pymysql
-cryptography

@@ -1,3 +1,6 @@
+# Para ejecutar este programa, asegúrate de tener instaladas las librerías necesarias:
+# pip install -r librerias.txt
+
 # Lo primero que hacemos es importar las librerías necesarias para la ejecución del programa
 import dash
 from dash import dcc, html
@@ -5,9 +8,23 @@ import plotly.express as px
 import pandas as pd
 from sqlalchemy import create_engine
 from dash.dependencies import Input, Output
+from cryptography.fernet import Fernet
+import getpass
+import os
+from sqlalchemy.exc import OperationalError
 
-# Conectamos con la base de datos MySQL que está en mi ordenador
-engine = create_engine("mysql+pymysql://root:1234@localhost/instituto")
+if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+    while True:
+        db_password = getpass.getpass("Introduce la contraseña de MySQL: ")
+        try:
+            engine = create_engine(f"mysql+pymysql://root:{db_password}@localhost/instituto")
+            with engine.connect() as conn:
+                print("✅ Contraseña introducida correctamente.")
+            break
+        except OperationalError:
+            print("❌ Contraseña incorrecta. Inténtalo de nuevo.")
+
+# La conexión ya se ha establecido correctamente dentro del bloque principal
 
 # Creamos una función para obtener los datos de la base de datos
 def obtener_datos(query):
@@ -90,102 +107,91 @@ app.layout = html.Div([
     ], id="contenedor-graficas", className="graph-container")
 ])
 
-# Definimos la gráfica de barras de los alumnos por curso
+# Eliminado el uso de archivos para la contraseña; ahora se introduce en tiempo de ejecución
+
 @app.callback(Output("grafica-alumnos", "figure"), Input("interval", "n_intervals"))
 def actualizar_grafica_alumnos(n):
     df = obtener_datos(queries["alumnos_por_curso"])
     return px.bar(df, x="Curso", y="Alumnos", color="Curso",
-                color_discrete_sequence=colores["alumnos"],
-                title="Alumnos por Curso")
+        color_discrete_sequence=colores["alumnos"],
+        title="Alumnos por Curso")
 
-# Definimos la gráfica de quesito de los alumnos por curso
 @app.callback(Output("quesito-alumnos", "figure"), Input("interval", "n_intervals"))
 def actualizar_quesito_alumnos(n):
     df = obtener_datos(queries["alumnos_por_curso"])
     return px.pie(df, names="Curso", values="Alumnos", color="Curso",
-                color_discrete_sequence=colores["alumnos"],
-                title="Alumnos por Curso (Quesito)")
+        color_discrete_sequence=colores["alumnos"],
+        title="Alumnos por Curso (Quesito)")
 
-# Definimos la gráfica de barras de los profesores por asignatura
 @app.callback(Output("grafica-profesores", "figure"), Input("interval", "n_intervals"))
 def actualizar_grafica_profesores(n):
     df = obtener_datos(queries["asignaturas_por_profesor"])
     return px.bar(df, x="Profesor", y="Asignaturas", color="Profesor",
-                color_discrete_sequence=colores["profesores"],
-                title="Asignaturas por Profesor")
+        color_discrete_sequence=colores["profesores"],
+        title="Asignaturas por Profesor")
 
-# Definimos la gráfica de quesito de los profesores por asignatura
 @app.callback(Output("quesito-profesores", "figure"), Input("interval", "n_intervals"))
 def actualizar_quesito_profesores(n):
     df = obtener_datos(queries["asignaturas_por_profesor"])
     return px.pie(df, names="Profesor", values="Asignaturas", color="Profesor",
-                color_discrete_sequence=colores["profesores"],
-                title="Asignaturas por Profesor (Quesito)")
+        color_discrete_sequence=colores["profesores"],
+        title="Asignaturas por Profesor (Quesito)")
 
-# Definimos la gráfica de barras de la nota media por curso
 @app.callback(Output("grafica-nota-media", "figure"), Input("interval", "n_intervals"))
 def actualizar_grafica_nota_media(n):
     df = obtener_datos(queries["nota_media_por_curso"])
     return px.bar(df, x="Curso", y="Media", color="Curso",
-                color_discrete_sequence=colores["nota_media"],
-                title="Nota Media por Curso")
+        color_discrete_sequence=colores["nota_media"],
+        title="Nota Media por Curso")
 
-# Definimos la gráfica de quesito de la nota media por curso
 @app.callback(Output("quesito-nota-media", "figure"), Input("interval", "n_intervals"))
 def actualizar_quesito_nota_media(n):
     df = obtener_datos(queries["nota_media_por_curso"])
     return px.pie(df, names="Curso", values="Media", color="Curso",
-                color_discrete_sequence=colores["nota_media"],
-                title="Nota Media por Curso (Quesito)")
+        color_discrete_sequence=colores["nota_media"],
+        title="Nota Media por Curso (Quesito)")
 
-# Definimos la gráfica de barras de los alumnos por asignatura
 @app.callback(Output("grafica-alumnos-asignatura", "figure"), Input("interval", "n_intervals"))
 def actualizar_grafica_alumnos_asignatura(n):
     df = obtener_datos(queries["alumnos_por_asignatura"])
     return px.bar(df, x="Asignatura", y="Alumnos", color="Asignatura",
-                color_discrete_sequence=colores["asignaturas"],
-                title="Número de Alumnos por Asignatura")
+        color_discrete_sequence=colores["asignaturas"],
+        title="Número de Alumnos por Asignatura")
 
-# Definimos la gráfica de quesito de los alumnos por asignatura
 @app.callback(Output("quesito-alumnos-asignatura", "figure"), Input("interval", "n_intervals"))
 def actualizar_quesito_alumnos_asignatura(n):
     df = obtener_datos(queries["alumnos_por_asignatura"])
     return px.pie(df, names="Asignatura", values="Alumnos", color="Asignatura",
-                color_discrete_sequence=colores["asignaturas"],
-                title="Alumnos por Asignatura (Quesito)")
+        color_discrete_sequence=colores["asignaturas"],
+        title="Alumnos por Asignatura (Quesito)")
 
-# Definimos la gráfica de barras de las asignaturas por curso
 @app.callback(Output("grafica-asignaturas-curso", "figure"), Input("interval", "n_intervals"))
 def actualizar_grafica_asignaturas_curso(n):
     df = obtener_datos(queries["asignaturas_por_curso"])
     return px.bar(df, x="Curso", y="Asignaturas", color="Curso",
-                color_discrete_sequence=colores["asignaturas_curso"],
-                title="Asignaturas por Curso")
+        color_discrete_sequence=colores["asignaturas_curso"],
+        title="Asignaturas por Curso")
 
-# Definimos la gráfica de quesito de las asignaturas por curso
 @app.callback(Output("quesito-asignaturas-curso", "figure"), Input("interval", "n_intervals"))
 def actualizar_quesito_asignaturas_curso(n):
     df = obtener_datos(queries["asignaturas_por_curso"])
     return px.pie(df, names="Curso", values="Asignaturas", color="Curso",
-                color_discrete_sequence=colores["asignaturas_curso"],
-                title="Asignaturas por Curso (Quesito)")
+        color_discrete_sequence=colores["asignaturas_curso"],
+        title="Asignaturas por Curso (Quesito)")
 
-# Definimos la gráfica de barras de la nota media por asignatura
 @app.callback(Output("grafica-nota-media-asignatura", "figure"), Input("interval", "n_intervals"))
 def actualizar_grafica_nota_media_asignatura(n):
     df = obtener_datos(queries["nota_media_por_asignatura"])
     return px.bar(df, x="Curso", y="num_alumnos", color="Curso",
-                color_discrete_sequence=colores["nota_media_asig"],
-                title="Nota Media por Asignatura")
+        color_discrete_sequence=colores["nota_media_asig"],
+        title="Nota Media por Asignatura")
 
-# Definimos la gráfica de quesito de la nota media por asignatura
 @app.callback(Output("quesito-nota-media-asignatura", "figure"), Input("interval", "n_intervals"))
 def actualizar_quesito_nota_media_asignatura(n):
     df = obtener_datos(queries["nota_media_por_asignatura"])
     return px.pie(df, names="Curso", values="num_alumnos", color="Curso",
-                color_discrete_sequence=colores["nota_media_asig"],
-                title="Nota Media por Asignatura (Quesito)")
+        color_discrete_sequence=colores["nota_media_asig"],
+        title="Nota Media por Asignatura (Quesito)")
 
-# Ejecutar la app
 if __name__ == "__main__":
     app.run(debug=True)
